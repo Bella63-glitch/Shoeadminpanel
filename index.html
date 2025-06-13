@@ -101,7 +101,7 @@
     <table id="productsTable"> 
      <thead> 
       <tr> 
-       <th>Images</th> 
+       <th>Image</th> 
        <th>Name</th> 
        <th>Price</th> 
        <th>Stock</th> 
@@ -118,35 +118,23 @@
      <input type="text" id="name" placeholder="Product Name" required> 
      <input type="number" id="price" placeholder="Price" required> 
      <input type="number" id="stock" placeholder="Stock Quantity" required> 
-     <input type="text" id="brand" placeholder="Brand Name" required> <select id="category" required> <option value="">Select Category</option> <option value="Men">Men</option> <option value="Women">Women</option> <option value="Kids">Kids</option> <option value="Sports">Sports</option> </select> 
+     <input type="text" id="brand" placeholder="Brand Name" required> <select id="category" required> <option value="">Select Category</option> <option value="Men">Men</option> <option value="Women">Women</option> <option value="Children">Children</option> <option value="Boots">Boots</option> <option value="Sneakers">Sneakers</option> <option value="Heels">Heels</option> <option value="Crab Kids School Shoes">Crab Kids School Shoes</option> </select> 
      <input type="text" id="sizes" placeholder="Available Sizes (e.g., 38,39,40)" required> 
-     <input type="text" id="description" placeholder="Short Description" required> <label><input type="checkbox" id="offer"> On Offer</label>
-     <br> <label><input type="checkbox" id="trending"> Trending</label>
-     <br> 
-     <input type="file" id="images" multiple accept="image/*" required> <button type="submit">Upload</button> 
+     <input type="text" id="description" placeholder="Short Description" required> 
+     <input type="file" id="images" accept="image/*" required> <button type="submit">Upload</button> 
     </form> 
    </section> 
   </div> 
   <script>
-    // These keys are taken directly from your Backendless screenshot.
-    // Ensure they are correct for your application.
     const APP_ID = "0889EC61-CC4A-4B8E-BD71-C27140B34E26";
-    const REST_API_KEY = "9BB7614B-9F7B-49F0-8C8C-65182EC8EBE3"; // This is the REST API key from your screenshot
-
-    // Your current BASE_URL structure (APP_ID and API_KEY in path)
-    // While Frontendless documentation typically suggests headers,
-    // we'll stick to your current structure as it seems to be working
-    // for initial data fetches and your "Action not found" error is gone.
+    const REST_API_KEY = "9BB7614B-9F7B-49F0-8C8C-65182EC8EBE3";
     const BASE_URL = `https://api.backendless.com/${APP_ID}/${REST_API_KEY}`;
-
-    // Common headers for Backendless REST API data operations (JSON content)
     const axiosConfig = {
       headers: {
         "Content-Type": "application/json"
       }
     };
 
-    // Tab switching logic (remains unchanged)
     document.querySelectorAll(".tab").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
@@ -156,87 +144,71 @@
       });
     });
 
-    // Helper function to get a more informative error message
     function getErrorMessage(error) {
       if (error.response) {
-        console.error("Axios response error details:", error.response);
-        if (error.response.data && typeof error.response.data === 'object') {
-          if (error.response.data.message) {
-            return `Backendless Error: ${error.response.data.message} (Code: ${error.response.data.code || 'N/A'})`;
-          }
-          return JSON.stringify(error.response.data, null, 2);
-        }
-        if (typeof error.response.data === 'string' && error.response.data.includes('<!doctype html>')) {
-            return "Server returned an HTML error page. Check URL and API keys. Details in console.";
-        }
-        return error.response.data || error.response.statusText || error.message;
+        return error.response.data.message || error.response.statusText || "Backendless Error";
       } else if (error.request) {
-        return "No response received from server. Check network connection or API URL.";
+        return "No response from server.";
       } else {
-        return error.message || "An unknown error occurred.";
+        return error.message;
       }
     }
 
-    // Fetch Orders function (uses axiosConfig)
     async function fetchOrders() {
       try {
         const res = await axios.get(`${BASE_URL}/data/Orders`, axiosConfig);
         const tbody = document.querySelector("#ordersTable tbody");
         tbody.innerHTML = "";
         res.data.forEach(order => {
-          tbody.innerHTML += `<tr>
-            <td>${order.objectId || 'N/A'}</td>
-            <td>${order.customerName || '-'}</td>
-            <td>${order.phone || '-'}</td>
-            <td>${order.total || '-'}</td>
-            <td>${order.status || 'Pending'}</td>
-          </tr>`;
+          tbody.innerHTML += `
+            <tr>
+              <td>${order.objectId || 'N/A'}</td>
+              <td>${order.customerName || '-'}</td>
+              <td>${order.phone || '-'}</td>
+              <td>${order.total || '-'}</td>
+              <td>${order.status || 'Pending'}</td>
+            </tr>
+          `;
         });
       } catch (error) {
-        console.error("Error fetching orders:", error);
         alert(`Failed to fetch orders: ${getErrorMessage(error)}`);
       }
     }
 
-    // Fetch Products function (uses axiosConfig)
     async function fetchProducts() {
       try {
         const res = await axios.get(`${BASE_URL}/data/Products`, axiosConfig);
         const tbody = document.querySelector("#productsTable tbody");
         tbody.innerHTML = "";
         res.data.forEach(p => {
-          const imagesHTML = (p.images || []).map(url =>
-            `<img src="${url}" class="product-img" alt="product image">`
-          ).join(' ');
-          tbody.innerHTML += `<tr>
-            <td>${imagesHTML}</td>
-            <td>${p.name || 'N/A'}</td>
-            <td>KES ${p.price || 'N/A'}</td>
-            <td>${p.stock || 'N/A'}</td>
-            <td>${p.brand || 'N/A'}</td>
-            <td><button onclick="deleteProduct('${p.objectId}')">Delete</button></td>
-          </tr>`;
+          const imageHTML = p.image ? `<img src="${p.image}" class="product-img" alt="product image">` : '';
+          tbody.innerHTML += `
+            <tr>
+              <td>${imageHTML}</td>
+              <td>${p.name || 'N/A'}</td>
+              <td>KES ${p.price || 'N/A'}</td>
+              <td>${p.stock || 'N/A'}</td>
+              <td>${p.brand || 'N/A'}</td>
+              <td><button onclick="deleteProduct('${p.objectId}')">Delete</button></td>
+            </tr>
+          `;
         });
       } catch (error) {
-        console.error("Failed to fetch products:", error);
         alert(`Failed to fetch products: ${getErrorMessage(error)}`);
       }
     }
 
-    // Delete Product function (uses axiosConfig)
     async function deleteProduct(id) {
       if (confirm("Are you sure you want to delete this product?")) {
         try {
           await axios.delete(`${BASE_URL}/data/Products/${id}`, axiosConfig);
           fetchProducts();
         } catch (error) {
-          console.error("Delete failed:", error);
           alert(`Failed to delete product: ${getErrorMessage(error)}`);
         }
       }
     }
 
-    // Upload Form Submission
     document.getElementById("uploadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
@@ -244,58 +216,33 @@
       const stock = parseInt(document.getElementById("stock").value);
       const brand = document.getElementById("brand").value.trim();
       const category = document.getElementById("category").value;
-      const sizes = document.getElementById("sizes").value.trim().split(',').map(s => s.trim()).filter(s => s);
+      const sizes = document.getElementById("sizes").value.trim().split(',').map(s => s.trim());
       const description = document.getElementById("description").value.trim();
-      const offer = document.getElementById("offer").checked;
-      const trending = document.getElementById("trending").checked;
-      const files = document.getElementById("images").files;
+      const file = document.getElementById("images").files[0];
 
-      if (!files.length) {
-        alert("Please select at least one image.");
+      if (!file || !name || isNaN(price) || isNaN(stock) || !brand || !category || !sizes.length || !description) {
+        alert("Please fill in all fields.");
         return;
       }
 
-      // Basic validation for required fields
-      if (!name || isNaN(price) || isNaN(stock) || !brand || !category || !sizes.length || !description) {
-            alert("Please fill in all required fields correctly.");
-            return;
-        }
-
       try {
-        const imageUrls = [];
+        const formData = new FormData();
+        formData.append('file', file);
 
-        for (const file of files) {
-          const formData = new FormData();
-          formData.append('file', file); // 'file' is the key Backendless expects
-
-          // When using FormData, Axios automatically sets the correct 'Content-Type' header
-          // as 'multipart/form-data' with the appropriate boundary.
-          // We DO NOT manually set Content-Type for FormData uploads.
-          const uploadRes = await axios.post(
-            `${BASE_URL}/files/products/${encodeURIComponent(file.name)}`,
-            formData, // Send the FormData object
-            // No explicit headers needed for Content-Type when sending FormData
-            // Make sure Backendless still expects application-id and secret-key in the URL path here.
-            // If it expects them in headers, you'll need to remove them from BASE_URL for file uploads
-            // or pass them explicitly in the headers for this request.
-            // Based on your BASE_URL, they are in the path.
-          );
-          imageUrls.push(uploadRes.data);
-        }
+        await axios.post(`${BASE_URL}/files/products-images/${encodeURIComponent(file.name)}`, formData);
+        const imageUrl = `https://backendlessappcontent.com/${APP_ID}/${REST_API_KEY}/files/products-images/${encodeURIComponent(file.name)}`;
 
         const productData = {
-          name, price, stock, brand,
-          category, sizes, description,
-          offer, trending, images: imageUrls
+          name, price, stock, brand, category, sizes,
+          description, image: imageUrl
         };
 
-        // Save product to Backendless Data Table "Products" (uses axiosConfig)
         await axios.post(`${BASE_URL}/data/Products`, productData, axiosConfig);
         alert("Product uploaded successfully!");
         e.target.reset();
         fetchProducts();
+
       } catch (error) {
-        console.error("Upload failed:", error);
         alert(`Failed to upload product: ${getErrorMessage(error)}`);
       }
     });
@@ -303,5 +250,5 @@
     fetchOrders();
     fetchProducts();
   </script> 
- 
-</body></html>
+ </body/>
+</html>
