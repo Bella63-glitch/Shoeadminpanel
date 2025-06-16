@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"> 
   <title>Askmyshoe Admin Panel</title> 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
-  <style>
+  <style>      
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -58,12 +58,6 @@
     th {
       background-color: #eee;
     }
-    img.product-img {
-      height: 50px;
-      width: auto;
-      margin-right: 5px;
-      vertical-align: middle;
-    }
     form input, form select, form button {
       display: block;
       margin: 1rem 0;
@@ -71,6 +65,18 @@
       width: 100%;
       max-width: 400px;
       box-sizing: border-box;
+    }
+    .action-btn {
+      padding: 5px 10px;
+      background-color: #4b006e;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .product-img {
+      width: 80px;
+      height: auto;
     }
   </style> 
  </head> 
@@ -125,15 +131,13 @@
     </form> 
    </section> 
   </div> 
-  <script>
-    const APP_ID = "0889EC61-CC4A-4B8E-BD71-C27140B34E26";
-    const REST_API_KEY = "9BB7614B-9F7B-49F0-8C8C-65182EC8EBE3";
-    const BASE_URL = `https://api.backendless.com/${APP_ID}/${REST_API_KEY}`;
-    const axiosConfig = {
-      headers: {
-        "Content-Type": "application/json"
-      }
-    };
+  <script>      
+    const APP_ID = "0889EC61-CC4A-4B8E-BD71-C27140B34E26";      
+    const REST_API_KEY = "9BB7614B-9F7B-49F0-8C8C-65182EC8EBE3";      
+    const BASE_URL = `https://api.backendless.com/${APP_ID}/${REST_API_KEY}`;      
+    const axiosConfig = { headers: { "Content-Type": "application/json" } };
+
+    let allOrders = [];
 
     document.querySelectorAll(".tab").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -157,21 +161,43 @@
     async function fetchOrders() {
       try {
         const res = await axios.get(`${BASE_URL}/data/Orders`, axiosConfig);
-        const tbody = document.querySelector("#ordersTable tbody");
-        tbody.innerHTML = "";
-        res.data.forEach(order => {
-          tbody.innerHTML += `
-            <tr>
-              <td>${order.objectId || 'N/A'}</td>
-              <td>${order.customerName || '-'}</td>
-              <td>${order.phone || '-'}</td>
-              <td>${order.total || '-'}</td>
-              <td>${order.status || 'Pending'}</td>
-            </tr>
-          `;
-        });
+        allOrders = res.data;
+        renderOrders();
       } catch (error) {
         alert(`Failed to fetch orders: ${getErrorMessage(error)}`);
+      }
+    }
+
+    function renderOrders() {
+      const tbody = document.querySelector("#ordersTable tbody");
+      tbody.innerHTML = "";
+
+      allOrders.forEach(order => {
+        const statusRaw = order.status || "Payment Pending";
+        const normalizedStatus = statusRaw.toLowerCase();
+
+        const statusColumn = normalizedStatus === "payment pending"
+          ? `<button class="action-btn" onclick="confirmPayment('${order.objectId}')">Confirm Payment</button>`
+          : statusRaw;
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${order.objectId || 'N/A'}</td>
+            <td>${order.fullname || order.customerName || '-'}</td>
+            <td>${order.phonenumber || order.phone || '-'}</td>
+            <td>${order.total || '-'}</td>
+            <td>${statusColumn}</td>
+          </tr>
+        `;
+      });
+    }
+
+    async function confirmPayment(orderId) {
+      try {
+        await axios.put(`${BASE_URL}/data/Orders/${orderId}`, { status: "Paid" }, axiosConfig);
+        fetchOrders();
+      } catch (error) {
+        alert(`Failed to confirm payment: ${getErrorMessage(error)}`);
       }
     }
 
@@ -181,10 +207,9 @@
         const tbody = document.querySelector("#productsTable tbody");
         tbody.innerHTML = "";
         res.data.forEach(p => {
-          const imageHTML = p.image ? `<img src="${p.image}" class="product-img" alt="product image">` : '';
           tbody.innerHTML += `
             <tr>
-              <td>${imageHTML}</td>
+              <td><img src="${p.image || ''}" class="product-img" alt="product image"></td>
               <td>${p.name || 'N/A'}</td>
               <td>KES ${p.price || 'N/A'}</td>
               <td>${p.stock || 'N/A'}</td>
@@ -233,8 +258,7 @@
         const imageUrl = `https://backendlessappcontent.com/${APP_ID}/${REST_API_KEY}/files/products-images/${encodeURIComponent(file.name)}`;
 
         const productData = {
-          name, price, stock, brand, category, sizes,
-          description, image: imageUrl
+          name, price, stock, brand, category, sizes, description, image: imageUrl
         };
 
         await axios.post(`${BASE_URL}/data/Products`, productData, axiosConfig);
@@ -250,5 +274,5 @@
     fetchOrders();
     fetchProducts();
   </script> 
- </body/>
+ </body>
 </html>
