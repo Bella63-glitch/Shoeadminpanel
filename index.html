@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Askmyshoe Admin Panel</title>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <title>Askmyshoe Admin Panel</title> 
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -78,60 +78,73 @@
       width: 80px;
       height: auto;
     }
-  </style>
- </head>
- <body>
-  <header>
-   <h1>Askmyshoe Admin Panel</h1>
-  </header>
-  <nav> <button class="tab active" data-tab="orders">Orders</button> <button class="tab" data-tab="products">Products</button> <button class="tab" data-tab="upload">Upload Product</button>
-  </nav>
-  <div class="container">
-   <section id="orders" class="section active">
-    <h2>Orders</h2>
-    <table id="ordersTable">
-     <thead>
-      <tr>
-       <th>Order ID</th>
-       <th>Name</th>
-       <th>Phone</th>
-       <th>Total</th>
-       <th>Status</th>
-      </tr>
-     </thead>
-     <tbody></tbody>
-    </table>
-   </section>
-   <section id="products" class="section">
-    <h2>Products</h2>
-    <table id="productsTable">
-     <thead>
-      <tr>
-       <th>Image</th>
-       <th>Name</th>
-       <th>Price</th>
-       <th>Stock</th>
-       <th>Brand</th>
-       <th>Actions</th>
-      </tr>
-     </thead>
-     <tbody></tbody>
-    </table>
-   </section>
-   <section id="upload" class="section">
-    <h2>Upload New Product</h2>
-    <form id="uploadForm">
-     <input type="hidden" id="productId">
-     <input type="text" id="name" placeholder="Product Name" required>
-     <input type="number" id="price" placeholder="Price" required>
-     <input type="number" id="stock" placeholder="Stock Quantity" required>
-     <input type="text" id="brand" placeholder="Brand Name" required> <select id="category" multiple required> <option value="Men">Men</option> <option value="Women">Women</option> <option value="Children">Children</option> <option value="Boots">Boots</option> <option value="Sneakers">Sneakers</option> <option value="Heels">Heels</option> <option value="Crab Kids School Shoes">Crab Kids School Shoes</option> </select>
-     <input type="text" id="sizes" placeholder="Available Sizes (e.g., 38,39,40)" required>
-     <input type="text" id="description" placeholder="Short Description" required>
-     <input type="file" id="images" accept="image/*" multiple> <button type="submit">Upload</button>
-    </form>
-   </section>
-  </div>
+  </style> 
+ </head> 
+ <body> 
+  <header> 
+   <h1>Askmyshoe Admin Panel</h1> 
+  </header> 
+  <nav> 
+    <button class="tab active" data-tab="orders">Orders</button> 
+    <button class="tab" data-tab="products">Products</button> 
+    <button class="tab" data-tab="upload">Upload Product</button> 
+  </nav> 
+  <div class="container"> 
+   <section id="orders" class="section active"> 
+    <h2>Orders</h2> 
+    <table id="ordersTable"> 
+     <thead> 
+      <tr> 
+       <th>Order ID</th> 
+       <th>Name</th> 
+       <th>Phone</th> 
+       <th>Total</th> 
+       <th>Status</th> 
+      </tr> 
+     </thead> 
+     <tbody></tbody> 
+    </table> 
+   </section> 
+   <section id="products" class="section"> 
+    <h2>Products</h2> 
+    <table id="productsTable"> 
+     <thead> 
+      <tr> 
+       <th>Image</th> 
+       <th>Name</th> 
+       <th>Price</th> 
+       <th>Stock</th> 
+       <th>Brand</th> 
+       <th>Actions</th> 
+      </tr> 
+     </thead> 
+     <tbody></tbody> 
+    </table> 
+   </section> 
+   <section id="upload" class="section"> 
+    <h2>Upload New Product</h2> 
+    <form id="uploadForm"> 
+     <input type="hidden" id="productId"> 
+     <input type="text" id="name" placeholder="Product Name" required> 
+     <input type="number" id="price" placeholder="Price" required> 
+     <input type="number" id="stock" placeholder="Stock Quantity" required> 
+     <input type="text" id="brand" placeholder="Brand Name" required> 
+     <select id="category" multiple required> 
+      <option value="Men">Men</option> 
+      <option value="Women">Women</option> 
+      <option value="Children">Children</option> 
+      <option value="Boots">Boots</option> 
+      <option value="Sneakers">Sneakers</option> 
+      <option value="Heels">Heels</option> 
+      <option value="Crab Kids School Shoes">Crab Kids School Shoes</option> 
+     </select> 
+     <input type="text" id="sizes" placeholder="Available Sizes (e.g., 38,39,40)" required> 
+     <input type="text" id="description" placeholder="Short Description" required> 
+     <input type="file" id="images" accept="image/*" multiple> 
+     <button type="submit">Upload</button> 
+    </form> 
+   </section> 
+  </div> 
   <script>
     const APP_ID = "0889EC61-CC4A-4B8E-BD71-C27140B34E26";
     const REST_API_KEY = "9BB7614B-9F7B-49F0-8C8C-65182EC8EBE3";
@@ -232,12 +245,12 @@
         document.getElementById("brand").value = product.brand;
         document.getElementById("sizes").value = product.sizes.join(',');
         document.getElementById("description").value = product.description;
+
         const categorySelect = document.getElementById("category");
         Array.from(categorySelect.options).forEach(option => {
-          option.selected = product.category.includes(option.value);
+          option.selected = product.category && product.category.includes(option.value);
         });
 
-        // Switch to Upload Tab
         document.querySelectorAll(".tab").forEach(btn => btn.classList.remove("active"));
         document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
         document.querySelector('[data-tab="upload"]').classList.add("active");
@@ -282,7 +295,7 @@
         };
         if (urls.length) {
           data.images = urls;
-          data.image = urls[0]; // Set the first image as the main image
+          data.image = urls[0];
         }
 
         if (id) {
@@ -296,8 +309,6 @@
         e.target.reset();
         document.getElementById("productId").value = "";
         fetchProducts();
-
-        // Switch to Products Tab
         document.querySelector('[data-tab="products"]').click();
       } catch (error) {
         console.error("Error uploading/updating product:", error);
@@ -307,6 +318,6 @@
 
     fetchOrders();
     fetchProducts();
-  </script>
+  </script> 
  </body>
 </html>
